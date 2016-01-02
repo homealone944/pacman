@@ -1,0 +1,83 @@
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Rectangle;
+
+public abstract class GameObject {
+	protected int x, y, velX, velY;
+	protected ID id;
+	
+	public GameObject(int x, int y, ID n)
+	{
+		this.x = x;
+		this.y = y;
+		this.id = n;
+	}
+	
+
+	public abstract void tick();
+
+	public abstract void render(Graphics g);
+	
+	public abstract Rectangle getRekt();
+
+	public void setX(int n) 
+	{
+		this.x = n;
+	}
+
+	public void setY(int n)
+	{
+		this.y = n;
+	}
+
+	public void setVelX(int n)
+	{
+		this.velX = n;
+	}
+
+	public void setVelY(int n)
+	{
+		this.velY = n;
+	}
+
+	public int getX() 
+	{
+		return x;
+	}
+
+	public int getY()
+	{
+		return y;
+	}
+
+	public int getVelX()
+	{
+		return velX;
+	}
+
+	public int getVelY()
+	{
+		return velY;
+	}
+	
+	public void addX(int n)
+	{
+		this.x += n;
+	}
+	
+	public void addY(int n)
+	{
+		this.y += n;
+	}
+
+	public ID getID()
+	{
+		return this.id;
+	}
+	
+	
+	
+	
+	
+
+}
