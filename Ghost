@@ -1,0 +1,312 @@
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.Random;
+
+
+public class Ghost extends GameObject
+{
+	private Driver d;
+	
+	private Rectangle rekt;
+	private Rectangle2D playerRekt;
+	
+	private Rectangle2D test;
+	private boolean pause = false;
+	
+	private int count = 0;
+	private String direction = "";
+	private boolean collide = false;
+	
+	ArrayList<Wall> wallData;
+	
+	public Ghost(int x, int y, Driver d)
+	{
+		super(x, y, ID.enemy);
+		
+		this.d = d;
+		
+		wallData = d.m.getTheWalls();
+		direction = "n";
+		
+		rekt = new Rectangle(x+2,y+2,7,7);	
+		playerRekt = rekt; 
+	}
+
+	public void tick()
+	{
+		count ++;
+		if(direction == "n")						//picks a random direction
+		{
+			Random randomGenerator = new Random();
+			int d = randomGenerator.nextInt(4)+1;
+			
+			if(d == 1)
+				direction = "u";
+			else if(d == 2)
+				direction = "d";
+			else if(d == 3)
+				direction = "l";
+			else if(d == 4)
+				direction = "r";
+			return;
+		}
+		for(int i = 0; i < wallData.size(); i++)
+		{
+			GameObject temp = wallData.get(i);								//blockade
+			if(this.getPlayerRekt().intersects(temp.getRekt()))
+				{
+					if(direction == "u")
+						this.addY(7);
+					else if(direction == "d")
+						this.addY(-7);
+					else if(direction == "r")
+						this.addX(-7);
+					else if(direction == "l")
+						this.addX(7);
+					direction = "n";
+					collide = true;
+				}
+		}
+		
+		if(collide)
+		{
+			DecideAll();
+		}
+		
+		if(count % 10 == 0 && !pause)					//auto move in the direction
+		{
+			if(direction == "u")
+				this.addY(-7);
+			else if(direction == "d")
+				this.addY(7);
+			else if(direction == "r")
+				this.addX(7);
+			else if(direction == "l")
+				this.addX(-7);
+		}
+		
+		
+		
+		this.updateRekt((double)this.x, (double)this.y);
+	}
+	
+	public void DecideAll()				//FIX!! (Sometimes goes back the way it came)
+	{
+		if(direction == "u")
+		{
+			decideFromU();
+		}
+		else if(direction == "d")
+		{
+			decideFromD();
+		}
+		else if(direction == "r")
+		{
+			decideFromR();
+		}
+		else if(direction == "l")
+		{
+			decideFromL();
+		}
+		
+		return;
+	}
+	
+	public void decideFromU()
+	{
+		boolean left = checkLeft();
+		boolean right = checkRight();
+		System.out.println("Choices:");
+		System.out.println("left: " + left);
+		System.out.println("right: " + right);
+		
+		collide = false;
+		
+		if(right && !left)
+			direction = "r";
+		else if(left && !right)
+			direction = "l";
+		else if(left && right)
+		{
+			if(d.p.getX() >= this.getX())
+				direction = "r";
+			else
+				direction = "l";
+		}
+		return;
+	}
+	public void decideFromD()
+	{
+		boolean left = checkLeft();
+		boolean right = checkRight();
+		System.out.println("Choices:");
+		System.out.println("left: " + left);
+		System.out.println("right: " + right);
+		
+		collide = false;
+		
+		if(right && !left)
+			direction = "r";
+		else if(left && !right)
+			direction = "l";
+		else if(left && right)
+		{
+			if(d.p.getX() >= this.getX())
+				direction = "r";
+			else
+				direction = "l";
+		}
+		return;
+	}
+	public void decideFromR()
+	{
+		boolean up = checkUp();
+		boolean down = checkDown();
+		System.out.println("Choices:");
+		System.out.println("up: " + up);
+		System.out.println("down: " + down);
+		
+		collide = false;
+		
+		if(up && !down)
+			direction = "u";
+		else if(down && !up)
+			direction = "d";
+		else if(down && up)
+		{
+			if(d.p.getY() >= this.getY())
+				direction = "d";
+			else
+				direction = "u";
+		}
+		return;
+	}
+	public void decideFromL()
+	{
+		boolean up = checkUp();
+		boolean down = checkDown();
+		System.out.println("Choices:");
+		System.out.println("up: " + up);
+		System.out.println("down: " + down);
+		
+		collide = false;
+		
+		if(up && !down)
+			direction = "u";
+		else if(down && !up)
+			direction = "d";
+		else if(down && up)
+		{
+			if(d.p.getY() >= this.getY())
+				direction = "d";
+			else
+				direction = "u";
+		}
+		return;
+	}
+	
+	
+	public boolean checkUp()
+	{
+		boolean clear = true;
+		Rectangle testRekt = new Rectangle(x+2,y-5,7,7);
+		test = testRekt;
+		
+		
+		for(int i = 0; i < wallData.size(); i++)
+		{
+			GameObject temp = wallData.get(i);	
+			if(new Area(test).intersects(temp.getRekt()))
+			{
+				return false;
+			}
+		}
+		
+		return clear;
+	}
+	
+	public boolean checkDown()
+	{
+		boolean clear = true;
+		
+		Rectangle testRekt = new Rectangle(this.x+2, this.y+9,7,7);
+		test = testRekt;
+		
+		for(int i = 0; i < wallData.size(); i++)
+		{
+			GameObject temp = wallData.get(i);	
+			if(new Area(test).intersects(temp.getRekt()))
+			{
+				return false;
+			}
+		}
+		
+		return clear;
+	}
+	
+	public boolean checkRight()
+	{
+		boolean clear = true;
+		Rectangle testRekt = new Rectangle(this.x+9, this.y+2,7,7);
+		test = testRekt;
+		
+		for(int i = 0; i < wallData.size(); i++)
+		{
+			GameObject temp = wallData.get(i);	
+			if(new Area(test).intersects(temp.getRekt()))
+			{
+				return false;
+			}
+		}
+		
+		return clear;
+	}
+	
+	public boolean checkLeft()
+	{
+		boolean clear = true;
+		Rectangle testRekt = new Rectangle(this.x-5, this.y+2,7,7);
+		test = testRekt;
+		
+		for(int i = 0; i < wallData.size(); i++)
+		{
+			GameObject temp = wallData.get(i);	
+			if(new Area(test).intersects(temp.getRekt()))
+			{
+				return false;
+			}
+		}
+		
+		return clear;
+	}
+	
+	public void render(Graphics g)
+	{
+		g.setColor(Color.PINK);
+		g.fillOval(x+2, y+2, 7, 7);
+	}
+
+	public void updatePause()
+	{
+		pause = !pause;
+	}
+	private void updateRekt(double x, double y)
+	{
+		playerRekt.setFrame(x+2,y+2,7,7);
+	}
+	
+	public Area getPlayerRekt()
+	{
+		return new Area(playerRekt);
+	}
+	
+	public Rectangle getRekt()
+	{
+		return rekt;
+	}
+
+}
