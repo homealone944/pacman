@@ -1,0 +1,32 @@
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Rectangle;
+
+
+public class Wall extends GameObject
+{
+
+	private Rectangle rekt;
+	
+	public Wall(int x, int y)
+	{
+		super(x, y, ID.blockade);
+		rekt = new Rectangle(x+3, y+3, 6, 6);
+	}
+	
+	public void tick()
+	{
+		
+	}
+
+	public void render(Graphics g)
+	{
+		g.setColor(Color.RED);
+		//g.fillRect(x+3, y+3, 6, 6);
+	}
+
+	public Rectangle getRekt()
+	{
+		return rekt;				
+	}
+}
