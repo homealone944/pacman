@@ -1,0 +1,240 @@
+import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.util.ArrayList;
+
+
+public class Map extends GameObject
+{
+	Handler h;
+	private int [][] arr;
+	private ArrayList<Wall> theWalls;
+	
+	public Map(int x, int y, ID n)
+	{
+		super(x, y, n);
+	}
+	public Map(Handler handler)
+	{
+		super(0, 0, ID.none);
+		h = handler;
+		arr = new int [26][29];
+		
+		for(int r = 0; r < arr.length; r++)
+		{
+			for(int c = 0; c < arr[r].length; c++)
+			{
+				arr[r][c] = 0;
+			}
+		}	
+		
+		theWalls = new ArrayList<Wall>();
+		make();
+	}
+	
+	public void make()
+	{
+		for(int i = 5; i < 186; i += 7)
+		{
+			Wall temp = new Wall(i, 22);
+			theWalls.add(temp);
+		}
+		
+		for(int i = 5; i < 186; i += 7)
+		{
+			Wall temp = new Wall(i, 232);
+			theWalls.add(temp);
+		}
+		
+		for(int i = 22; i < 239; i += 7)
+		{
+			Wall temp = new Wall(-2, i);
+			theWalls.add(temp);
+		}
+		
+		for(int i = 22; i < 239; i += 7)
+		{
+			Wall temp = new Wall(187, i);
+			theWalls.add(temp);
+		}
+		
+		lr(1,1,4);
+		lr(2,1,4);
+		lr(3,1,4);
+		
+		lr(5,1,4);
+		lr(6,1,4);
+		
+		lr(8,0,4);
+		lr(12,0,4);
+		
+		lr(14,0,4);
+		lr(18,0,4);
+		
+		lr(20,1,4);
+		lr(21,1,4);
+		
+		lr(23,0,1);
+		lr(24,0,1);
+		
+		lr(26,1,10);
+		lr(27,1,10);
+		
+		ud(4,9,11);
+		ud(4,15,17);
+		
+		ud(3,22,24);
+		ud(4,22,24);
+		
+		lr(1,6,10);
+		lr(2,6,10);
+		lr(3,6,10);
+		
+		ud(6,5,12);
+		ud(7,5,12);
+		
+		lr(8,8,10);
+		lr(9,8,10);
+		
+		ud(6,14,18);
+		ud(7,14,18);
+		
+		lr(20,6,10);
+		lr(21,6,10);
+		
+		ud(6,23,25);
+		ud(7,23,25);
+		
+		ud(12,0,3);
+		ud(13,0,3);
+		
+		lr(5,9,16);
+		lr(6,9,16);
+		
+		ud(12,7,9);
+		ud(13,7,9);
+		
+		lr(1,15,19);
+		lr(2,15,19);
+		lr(3,15,19);
+		
+		lr(1,21,24);
+		lr(2,21,24);
+		lr(3,21,24);
+		
+		lr(5,1,4);
+		lr(6,1,4);
+		
+		lr(11,9,16);
+		lr(15,9,16);
+		
+		ud(9,12,14);
+		ud(16,12,14);
+		
+		lr(17,9,16);
+		lr(18,9,16);
+		
+		lr(23,9,16);
+		lr(24,9,16);
+		
+		ud(12,19,21);
+		ud(13,19,21);
+		
+		ud(12,25,27);
+		ud(13,25,27);
+		
+		ud(18,5,12);
+		ud(19,5,12);
+		
+		ud(18,14,18);
+		ud(19,14,18);
+		
+		lr(20,15,19);
+		lr(21,15,19);
+		
+		lr(5,21,24);
+		lr(6,21,24);
+		
+		lr(8,15,18);	
+		lr(9,15,18);
+		
+		lr(26,15,24);	
+		lr(27,15,24);
+		
+		lr(20,21,24);	
+		lr(21,21,24);
+		
+		lr(23,24,25);	
+		lr(24,24,25);
+		
+		ud(18,23,25);
+		ud(19,23,25);
+		
+		ud(21,22,24);
+		ud(22,22,24);
+		
+		lr(12,21,25);
+		lr(8,21,25);
+		
+		lr(14,21,25);
+		lr(18,21,25);
+		
+		ud(21,9,11);
+		ud(21,15,17);
+	}
+	
+	public void ud(int x, int start, int end)		//inclusive
+	{
+		for(int i = start; i <= end; i ++)
+		{
+			wall(x,i);
+		}
+	}
+	public void lr(int y, int start, int end)	//inclusive
+	{
+		for(int i = start; i <= end; i ++)
+		{
+			wall(i,y);
+		}
+	}
+	
+	public void wall(int r, int c)
+	{
+		arr[r][c] = 1;
+		Wall temp = new Wall((r*7)+5, (c*7)+29);
+		theWalls.add(temp);
+	}
+	
+	public int[][] getArr()
+	{
+		return arr;
+	}
+	
+	public void tick()
+	{		
+	}
+
+	public ArrayList<Wall> getTheWalls()
+	{
+		return theWalls;
+	}
+	
+	public Wall getTheWallAt(int x)
+	{
+		return theWalls.get(x);
+	}
+	
+	public void render(Graphics g)
+	{
+		for (int x = 0; x < theWalls.size(); x++)
+		{
+			Wall temp = theWalls.get(x);
+			temp.render(g);
+		}
+	}
+
+	public Rectangle getRekt()
+	{
+		return null;
+	}
+
+}
