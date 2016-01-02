@@ -1,0 +1,259 @@
+import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
+
+
+public class Driver extends Canvas  implements Runnable
+{
+	private boolean running = false;
+	public Integer frames;
+	public Thread thread;
+	
+	private Window window;
+	private Handler h;
+	public Player p;
+	private Ghost g1;
+	public Map m;
+	private KeyInput input;
+	
+	public boolean powered = false;
+	public int direction = 0;		// 1 up, 2 down, 3 left, 4 right
+	private int count = 0;
+	private int countPU = 0;
+	
+	private ArrayList<GameObject> wall;
+	private ArrayList<GameObject> pu;
+	
+	private BufferedImage imgMap;
+	private File img = new File("Map.png");
+	
+	
+	public Driver()
+	{
+		try
+		{     
+		 imgMap = ImageIO.read(img);
+		}
+		catch(IOException e)
+		{
+			
+		}
+		
+		h = new Handler(this);
+		input = new KeyInput(h, this);
+		this.addKeyListener(input);
+		
+		wall = new ArrayList<GameObject>();
+		pu = new ArrayList<GameObject>();
+		
+		window = new Window("PACMAN!", this);
+		
+		m = new Map(h);
+		p = new Player(96, 183, ID.player, this);
+		g1 = new Ghost(89,99,this);
+		
+		
+		h.add(p);
+		h.add(m);
+		h.add(g1);
+		
+		makePU();
+		
+		render();
+	}
+	
+	public void tick()
+	{
+		h.tick();
+		
+		if(powered)
+			p.setPowered();
+		
+		count ++;
+		if(count % 15 == 0 && !p.getPause())
+		{
+			
+			if(direction == 1)			// 1 up, 2 down, 3 right, 4 left
+				p.addY(-7);
+			else if(direction == 2)
+				p.addY(7);
+			else if(direction == 3)
+				p.addX(7);
+			else if(direction == 4)
+				p.addX(-7);
+			else
+				{
+					return;
+				}
+			
+			if(powered)
+				countPU ++;
+			if(countPU == 25)
+			{
+				powered = false;
+				p.setUnPowered();
+				countPU = 0;
+			}
+		}
+		if(p.getX() == 180 && p.getY() == 120)				//teleport
+		{
+			p.setX(12);
+		}
+		else if(p.getX() == 5 && p.getY() == 120)
+		{
+			p.setX(173);
+		}
+		
+		for(int i = 0; i < m.getTheWalls().size(); i++)
+		{
+			GameObject temp = m.getTheWallAt(i);								//blockade
+			if(p.getPlayerRekt().intersects(temp.getRekt()))
+				{
+					if(direction == 1)
+						p.addY(7);
+					else if(direction == 2)
+						p.addY(-7);
+					else if(direction == 3)
+						p.addX(-7);
+					else if(direction == 4)
+						p.addX(7);
+					
+					setDirection(0);
+				}
+		}
+		
+		for(int i = 0; i < pu.size(); i++)
+		{
+			GameObject temp = pu.get(i);								//powerUp
+			if(p.getPlayerRekt().intersects(temp.getRekt()))
+				{
+					powered = true;
+					pu.remove(i);
+					h.remove(temp);
+					i--;
+				}
+		}
+	}
+	public void render()
+	{
+		BufferStrategy bs = this.getBufferStrategy();
+		if(bs == null)
+		{
+			this.createBufferStrategy(3);
+			return;
+		}
+		Graphics g = bs.getDrawGraphics();
+		
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, 200, 300);
+		g.drawImage(imgMap,0,0,this);
+		
+		g.setColor(Color.WHITE);
+		g.drawString("X:" + p.getX(),50,10);
+		g.drawString("Y:" + p.getY(),50,20);
+		
+		
+		h.render(g);
+		
+		g.dispose();
+		bs.show();
+	}
+	
+	public synchronized void start()
+	{
+		thread = new Thread(this);
+		thread.start();
+		running = true;
+	}
+	
+	public synchronized void stop()
+	{
+		try
+		{
+			thread.join();
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public void makePU()
+	{
+		//add more powerups here
+		PU(5,29);
+	}
+	
+	
+	public void PU(int x, int y)
+	{
+		PowerUp temp = new PowerUp(x,y);
+		h.add(temp);
+		pu.add(temp);
+	}
+	
+	public void run()
+	{
+		this.requestFocus();
+		long lastTime = System.nanoTime();
+		double amountOfTicks = 60.0;
+		double ns = 1000000000 / amountOfTicks;
+		double delta = 0;
+		long timer = System.currentTimeMillis();
+		frames = 0;
+		while(running)
+		{
+			long now = System.nanoTime();
+			delta += (now - lastTime)/ns;
+			lastTime = now;
+			while(delta >= 1)
+			{
+				tick();
+				delta --;			
+			}
+			if(running)
+				render();
+			frames++;
+			
+			if(System.currentTimeMillis() - timer > 1000)
+			{
+				timer += 1000;
+				//System.out.println("FPS: " + frames);
+				frames = 0;
+			}
+		}
+		stop();
+	}
+	
+	public void setDirection(int n)
+	{
+		direction = n;		
+	}
+	public static int clamp(int var, int max, int min)
+	{
+		if(var >= max) return var = max;
+		else if(var <= min) return var = min;
+		else return var;
+	}
+	
+	public static void main(String [] args)
+	{
+		Driver d = new Driver();
+	}
+	
+	public void updatePause()
+	{
+		g1.updatePause();
+		p.updatePause();
+		System.out.println("Pause!!!!!!!!!!!!");
+	}
+	
+	
+	
+}
