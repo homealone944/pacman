@@ -1,0 +1,81 @@
+import java.awt.Color;
+import java.awt.Graphics;
+import java.util.ArrayList;
+import java.util.LinkedList;
+
+
+public class Handler
+{
+	LinkedList<GameObject> object = new LinkedList<GameObject>();
+	private Driver d;
+	
+	public Handler(Driver g)
+		{
+			d = g;
+		}
+	
+	public void tick()
+	{
+		for(int i = 0; i < object.size(); i ++)
+		{
+			GameObject temp = object.get(i);
+			
+			temp.tick();
+			
+		}
+		
+	}
+	
+	public void clearEverything()
+	{
+		for(int i = 0; i < object.size(); i ++)
+		{
+			GameObject temp = object.get(i);
+			
+		}
+	}
+	
+	public void render(Graphics g)
+	{
+		for(int i = 0; i < object.size(); i ++)
+		{
+			GameObject temp = object.get(i);
+			
+			temp.render(g);
+		}
+	}
+	
+	public void add(GameObject n)
+	{
+		this.object.add(n);
+	}
+	public void delete(GameObject n)
+	{
+		this.object.remove(n);
+	}
+	
+	public GameObject findAt(int x,int y)
+	{
+		for(int i = 0; i < object.size(); i ++)
+		{
+			GameObject temp = object.get(i);
+			if(temp.getX() == x && temp.getY() == y)
+				return temp;
+		}
+		return null;
+	}
+	
+	public boolean checkIntersection()		//return true if there is an intersection
+	{
+		return false;
+	}
+	
+	
+	
+	public void remove(GameObject c)
+	{
+		object.remove(c);
+	}
+	
+
+}
