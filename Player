@@ -1,0 +1,105 @@
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
+
+public class Player extends GameObject
+{
+	public Integer deathCount = 0;
+	public Integer wins = 0;
+	
+	public boolean powered = false;
+	
+	private Driver d;
+	
+	private Rectangle rekt;
+	private Rectangle2D playerRekt;
+	private Dimension dim;
+	private int row;
+	private int col;
+	private boolean pause = false;
+	
+	int count;
+	
+	int xVel = 0;
+	
+	public Player(int x, int y, ID n, Driver dr)
+	{
+		super(x, y, n);
+		
+		d = dr;
+		
+		dim = new Dimension(7,7);
+		
+		rekt = new Rectangle(x+2,y+2,7,7);	
+		playerRekt = rekt; 
+	}
+	
+	public Area getPlayerRekt()
+	{
+		return new Area(playerRekt);
+	}
+	
+	private void updateRekt(double x, double y)
+	{
+		playerRekt.setFrame(x+2,y+2,7,7);
+	}
+
+	public void tick() 
+	{
+		//x = d.clamp(x,180,5);
+		//y = d.clamp(y,225,29);
+		
+		this.updateRekt((double)this.x, (double)this.y);
+	}
+
+	public void render(Graphics g)
+	{
+		if(powered)
+			g.setColor(Color.RED);
+		else
+			g.setColor(Color.YELLOW);
+		g.fillOval(x+2, y+2, 7, 7);
+		//g.fillRect(x+2, y+2, 7, 7);
+	}
+	
+	public void updatePause()
+	{
+		pause = !pause;
+	}
+	public boolean getPause()
+	{
+		return pause;
+	}
+	public int getRow()
+	{
+		return row;
+	}
+	public int getcOL()
+	{
+		return col;
+	}
+	
+	public void setPowered()
+	{
+		powered = true;
+	}
+	
+	public void setUnPowered()
+	{
+		powered = false;
+	}
+	
+	public Rectangle getRekt()
+	{
+		return rekt;
+	}
+}
